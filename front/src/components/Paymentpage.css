@@ -1,0 +1,30 @@
+.payment-container {
+  max-width: 500px;
+  margin: 40px auto;
+  background: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+.stripe-box {
+  padding: 15px;
+  border: 1px solid #ddd;
+  margin: 20px 0;
+  border-radius: 5px;
+}
+
+.pay-btn {
+  width: 100%;
+  padding: 12px;
+  background: #673ab7;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.pay-btn:disabled {
+  background: #999;
+}

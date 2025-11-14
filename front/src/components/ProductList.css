@@ -1,0 +1,183 @@
+/* Container */
+.product-list-container {
+  max-width: 1500px;
+  margin: 2rem auto;
+  padding: 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Loading */
+.loading {
+  text-align: center;
+  margin-top: 3rem;
+  font-size: 1.3rem;
+  color: #555;
+}
+
+/* Controls */
+.product-controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.sort-limit label {
+  margin-right: 1.5rem;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.sort-limit select {
+  margin-left: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.sort-limit select:hover {
+  border-color: #666;
+}
+
+/* Grid */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+  align-items: stretch; /* ensures equal height rows */
+}
+
+/* Card */
+.product-card {
+  position: relative;
+  background: #fff;
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  display: flex;
+  flex-direction: column; /* keeps footer pinned */
+  justify-content: space-between;
+  min-height: 360px; /* fixed card height */
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+}
+
+/* Product Image */
+.product-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: contain;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+/* Product Title */
+.product-card h3 {
+  font-size: 1.05rem;
+  margin: 0.5rem 0;
+  color: #222;
+  min-height: 42px; /* keeps titles aligned */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Price */
+.product-card .price {
+  color: #e63946;
+  font-weight: 600;
+  margin: 0.5rem 0 1rem;
+}
+
+/* Discount Badge */
+.product-card .badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #e63946;
+  color: #fff;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+/* Buttons */
+.card-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-top: auto; /* pushes buttons to bottom */
+}
+
+.view-btn, .add-cart-btn {
+  flex: 1;
+  padding: 0.6rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.view-btn {
+  background: #f1f1f1;
+  border: 1px solid #ddd;
+  color: #333;
+  text-decoration: none;
+  text-align: center;
+}
+
+.view-btn:hover {
+  background: #e9ecef;
+  border-color: #bbb;
+}
+
+.add-cart-btn {
+  background: #0077ff;
+  border: none;
+  color: #fff;
+}
+
+.add-cart-btn:hover {
+  background: #005fcc;
+}
+
+/* Pagination */
+.pagination {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.pagination button {
+  margin: 0 0.3rem;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pagination button.active {
+  background: #0077ff;
+  color: #fff;
+  border-color: #0077ff;
+}
+
+.pagination button:hover:not(:disabled) {
+  background: #f1f1f1;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

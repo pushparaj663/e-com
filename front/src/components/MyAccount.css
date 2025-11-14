@@ -1,0 +1,58 @@
+.account-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 800px;
+  margin: auto;
+  padding: 2rem;
+}
+
+.account-card,
+.subscription-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.avatar-section {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.account-avatar img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+
+.upload-btn {
+  display: block;
+  margin-top: 0.5rem;
+  cursor: pointer;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.5rem 0;
+}
+
+.account-actions {
+  margin-top: 1rem;
+  text-align: right;
+}
+
+.btn {
+  margin: 0 0.5rem;
+  padding: 0.5rem 1rem;
+}
+
+.subscription-section {
+  margin-top: 2rem;
+}
+
+.subscription-card {
+  border: 1px solid #ddd;
+  margin: 1rem 0;
+}

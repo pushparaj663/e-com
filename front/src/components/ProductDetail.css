@@ -1,0 +1,248 @@
+/* ==============================
+   Back Button
+============================== */
+.back-btn-container {
+  max-width: 1400px;
+  margin: 1.5rem auto 0;
+  padding: 0 1rem;
+}
+
+.back-btn {
+  background: #f4f4f4;
+  border: 1px solid #ddd;
+  color: #333;
+  font-size: 0.95rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.back-btn:hover {
+  background: #0077ff;
+  color: #fff;
+  border-color: #0077ff;
+  transform: translateX(-3px);
+}
+
+/* ==============================
+   Product Detail Layout
+============================== */
+.product-detail-container {
+  display: flex;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 1.5rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.product-detail-container img {
+  width: 350px;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
+
+.product-detail-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-detail-info h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: #222;
+}
+
+.product-detail-desc {
+  line-height: 1.6;
+  margin: 0.5rem 0 1rem;
+  color: #444;
+}
+
+.product-detail-price {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #e63946;
+  margin-bottom: 1rem;
+}
+
+/* Discount Badge */
+.discount-badge {
+  display: inline-block;
+  background: #e63946;
+  color: #fff;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  margin-bottom: 0.8rem;
+  font-weight: 600;
+}
+
+/* Add to Cart */
+.add-btn {
+  padding: 0.9rem 1.4rem;
+  background: #0077ff;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.add-btn:hover {
+  background: #005fcc;
+  transform: translateY(-2px);
+}
+
+/* ==============================
+   Related Products (Fixed Layout)
+============================== */
+.related-products {
+  max-width: 1300px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+.related-products h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #222;
+  font-weight: 600;
+  border-left: 4px solid #0077ff;
+  padding-left: 0.5rem;
+}
+
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+.related-card {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 360px; /* Fixed card height */
+  text-align: center;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.related-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Fix image height */
+.related-card img {
+  width: 100%;
+  height: 160px; /* Fixed image height */
+  border-radius: 8px;
+  object-fit: cover;
+  margin-bottom: 0.8rem;
+}
+
+/* Title and price */
+.related-card h4 {
+  font-size: 1.05rem;
+  margin: 0.5rem 0;
+  color: #333;
+  font-weight: 600;
+  line-height: 1.3;
+  min-height: 2.6rem; /* Fix height for titles */
+}
+
+.related-card p {
+  color: #e63946;
+  font-weight: bold;
+  margin-bottom: 0.8rem;
+}
+
+/* Related Buttons */
+.related-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: auto; /* Push buttons to bottom */
+}
+
+.related-buttons .view-btn,
+.related-buttons button {
+  flex: 1;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+/* View Button */
+.related-buttons .view-btn {
+  background: #0077ff;
+  color: #fff;
+  text-decoration: none;
+}
+
+.related-buttons .view-btn:hover {
+  background: #005fcc;
+}
+
+/* Add to Cart Button */
+.related-buttons button {
+  background: #f4f4f4;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.related-buttons button:hover {
+  background: #e9e9e9;
+  border-color: #bbb;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .product-detail-container {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .product-detail-container img {
+    width: 100%;
+    max-width: 350px;
+    margin: 0 auto 1rem;
+  }
+}
+.subscription-form {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.emi-options {
+  margin-bottom: 15px;
+}
+
+.emi-option {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.card-box {
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
