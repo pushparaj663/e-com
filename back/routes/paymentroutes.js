@@ -1,60 +1,91 @@
-// routes/paymentRoutes.js
 const express = require("express");
-const Stripe = require("stripe");
+const Razorpay = require("razorpay");
+const crypto = require("crypto");
 const db = require("../db");
+const { verifyToken } = require("../middleware/authMiddleware");
 
 const router = express.Router();
-const stripe = new Stripe("sk_test_51Rysk01QHSw2U7iXyLhuQLoyCzNH1gbSdZIqeOaFsUFL8E2aRThBttQc8HRXmkyGFZKVMIAJL9U8bXo40Qif8cDc00JT3QiWKk"); // secret key
 
-const endpointSecret = "whsec_5ce3bacc480243e7d1a052c0ed04649ab23e858694f69128e84775f1307b1cf1"; // 👈 your webhook secret
+// 🟢 Razorpay Instance
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_SECRET,
+});
 
-// Stripe webhook handler
-router.post("/", express.raw({ type: "application/json" }), async (req, res) => {
-  const sig = req.headers["stripe-signature"];
-  let event;
+// 1️⃣ CREATE ORDER (from frontend)
+router.post("/razorpay/create", verifyToken, async (req, res) => {
+  const { amount } = req.body;
+
+  const options = {
+    amount: amount * 100, // convert INR → paisa
+    currency: "INR",
+    receipt: "receipt_" + Date.now(),
+  };
 
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+    const order = await razorpay.orders.create(options);
+    res.json({ success: true, order });
   } catch (err) {
-    console.error("❌ Webhook signature verification failed:", err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
+    console.error("Razorpay Create Error:", err);
+    res.status(500).json({ success: false, message: "Order creation failed" });
+  }
+});
+
+// 2️⃣ VERIFY PAYMENT
+router.post("/razorpay/verify", verifyToken, async (req, res) => {
+  const {
+    razorpay_payment_id,
+    razorpay_order_id,
+    razorpay_signature,
+    cartItems,
+    amount
+  } = req.body;
+
+  const userId = req.user.id;
+
+  // Signature check
+  const sign = razorpay_order_id + "|" + razorpay_payment_id;
+  const expectedSign = crypto
+    .createHmac("sha256", process.env.RAZORPAY_SECRET)
+    .update(sign)
+    .digest("hex");
+
+  if (expectedSign !== razorpay_signature) {
+    return res.status(400).json({ success: false, message: "Invalid signature" });
   }
 
   try {
-    switch (event.type) {
-      case "invoice.payment_succeeded": {
-        const invoice = event.data.object;
-        const subscriptionId = invoice.subscription;
+    // Save order
+    const [orderRes] = await db.query(
+      `INSERT INTO orders (user_id, total_price, status, created_at)
+       VALUES (?, ?, ?, NOW())`,
+      [userId, amount, "paid"]
+    );
 
-        await db.query(
-          "UPDATE subscriptions SET status = ?, current_period_end = FROM_UNIXTIME(?) WHERE stripe_subscription_id = ?",
-          ["active", invoice.lines.data[0].period.end, subscriptionId]
-        );
-        break;
-      }
+    const newOrderId = orderRes.insertId;
 
-      case "customer.subscription.updated": {
-        const subscription = event.data.object;
-        await db.query(
-          "UPDATE subscriptions SET status = ?, current_period_end = FROM_UNIXTIME(?) WHERE stripe_subscription_id = ?",
-          [subscription.status, subscription.current_period_end, subscription.id]
-        );
-        break;
-      }
+    // Save order items
+    await Promise.all(
+      cartItems.map((item) =>
+        db.query(
+          "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)",
+          [newOrderId, item.id, item.quantity, item.price]
+        )
+      )
+    );
 
-      case "customer.subscription.deleted": {
-        const subscription = event.data.object;
-        await db.query(
-          "UPDATE subscriptions SET status = ? WHERE stripe_subscription_id = ?",
-          ["canceled", subscription.id]
-        );
-        break;
-      }
-    }
-    res.json({ received: true });
+    // Save payment log
+    await db.query(
+      `INSERT INTO payments
+      (payment_id, amount, currency, status, user_id, order_id, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, NOW())`,
+      [razorpay_payment_id, amount, "INR", "paid", userId, newOrderId]
+    );
+
+    res.json({ success: true, orderId: newOrderId });
   } catch (err) {
-    console.error("❌ DB update error:", err);
-    res.status(500).send("Webhook handler failed");
+    console.error("Verify Error:", err);
+    res.status(500).json({ success: false, message: "Payment verify failed" });
   }
 });
 

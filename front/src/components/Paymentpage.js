@@ -1,111 +1,106 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
 import api from "../api";
 import "./Paymentpage.css";
 
-const stripePromise = loadStripe(
-  "pk_test_51Rysk01QHSw2U7iXqGXak3M0vnQ5dmWALuchfvpramRgNM9TLJl3FDiirYgh8MqeUFzt1cELlcbee0hsS2KrTzxa00J8Uhl7yP"
-);
-
-function PaymentForm() {
+export default function PaymentPage() {
   const { state } = useLocation();
-  const stripe = useStripe();
-  const elements = useElements();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
+
   const { form, totalPrice, cart } = state || {};
 
-  // Redirect if page refreshed
+  // redirect if page reloads
   useEffect(() => {
     if (!state) navigate("/checkout");
   }, [state, navigate]);
 
+  // Load Razorpay script dynamically
+  useEffect(() => {
+    if (!window.Razorpay) {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  }, []);
 
   const handlePayment = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // -------------------------
-    // 🔍 DEBUGGING LOGS
-    // -------------------------
-    console.log("🔍 totalPrice received:", totalPrice);
-    console.log("🔍 amount sent to backend (paise):", Math.round(totalPrice * 100));
-
-    // ⛔ PREVENT payment below minimum (Stripe rule)
-    if (totalPrice < 50) {
-      alert("Minimum online payment is ₹50. Please increase your order amount or choose Cash on Delivery.");
-      setLoading(false);
-      return;
-    }
-
     try {
-      // 1️⃣ CREATE PAYMENT INTENT
-      const res = await api.post("/create-payment-intent", {
-        amount: Math.round(totalPrice * 100), // convert to paise
+      // 1️⃣ Create Razorpay Order on backend
+      const orderRes = await api.post("/api/payment/create-order", {
+        amount: Math.round(totalPrice * 100),   // paise
       });
 
-      console.log("🔥 PaymentIntent response:", res.data);
-
-      if (!res.data.clientSecret) {
-        alert("Server error: No payment secret received.");
+      const { order } = orderRes.data;
+      if (!order) {
+        alert("Failed to create order");
         setLoading(false);
         return;
       }
 
-      const clientSecret = res.data.clientSecret;
+      // 2️⃣ Razorpay Checkout Options
+      const options = {
+        key: process.env.REACT_APP_RZP_KEY_ID || "rzp_test_Rgh0l6uEoclw3z",
+        amount: order.amount,
+        currency: order.currency,
+        name: "E-Commerce Store",
+        description: "Order Payment",
+        order_id: order.id,
+        handler: async function (response) {
+          try {
+            // 3️⃣ Verify Payment on backend
+            const verifyRes = await api.post("/api/payment/verify-payment", {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
 
-      // 2️⃣ CONFIRM PAYMENT USING STRIPE
-      const result = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: elements.getElement(CardElement),
-          billing_details: {
-            name: form.name,
-            email: form.email,
-          },
+              // extra order info
+              name: form.name,
+              email: form.email,
+              phone: form.phone,
+              address: form.address,
+              cartItems: cart,
+              amount: order.amount,
+              currency: order.currency,
+            });
+
+            if (verifyRes.data.success) {
+              navigate("/payment-success", { state: verifyRes.data.order });
+            } else {
+              alert("Payment verification failed");
+            }
+          } catch (err) {
+            console.error("Verification Error:", err);
+            alert("Payment verification failed");
+          }
         },
-      });
 
-      console.log("🔥 Stripe result:", result);
-
-      if (result.error) {
-        alert(result.error.message || "Payment failed. Try again.");
-        setLoading(false);
-        return;
-      }
-
-      if (result.paymentIntent.status === "succeeded") {
-        // 3️⃣ CREATE ORDER DATA TO SAVE
-        const orderData = {
-          userId: null,
+        prefill: {
           name: form.name,
           email: form.email,
-          phone: form.phone,
-          cartItems: cart.map((item) => ({
-            id: item.id,
-            title: item.title,
-            quantity: Number(item.quantity),
-            price: Number(item.price),
-          })),
-          status: result.paymentIntent.status,
-          paymentId: result.paymentIntent.id,
-          amount: result.paymentIntent.amount,
-          currency: "INR",
-          subscriptionId: null,
-          period: null,
-        };
+          contact: form.phone,
+        },
 
-        // 4️⃣ SAVE ORDER IN BACKEND
-        await api.post("/save-payment", orderData);
+        theme: {
+          color: "#0e9f6e",
+        },
+      };
 
-        // 5️⃣ REDIRECT
-        navigate("/payment-success", { state: orderData });
-      }
+      // 4️⃣ Open Razorpay Widget
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+
+      rzp.on("payment.failed", function (response) {
+        alert("Payment Failed: " + response.error.description);
+      });
     } catch (err) {
-      console.error("❌ PAYMENT ERROR:", err.response?.data || err);
-      alert(err.response?.data?.error || "Payment failed. Try again.");
+      console.error("Razorpay Error:", err);
+      alert("Payment failed");
     } finally {
       setLoading(false);
     }
@@ -113,27 +108,15 @@ function PaymentForm() {
 
   return (
     <form className="payment-container" onSubmit={handlePayment}>
-      <h2>Complete Your Payment</h2>
+      <h2>Complete Payment</h2>
 
       <p><strong>Name:</strong> {form?.name}</p>
       <p><strong>Email:</strong> {form?.email}</p>
       <p><strong>Total:</strong> ₹{totalPrice}</p>
 
-      <div className="stripe-box">
-        <CardElement />
-      </div>
-
-      <button disabled={loading} className="pay-btn">
-        {loading ? "Processing..." : "Pay Now"}
+      <button className="pay-btn" disabled={loading}>
+        {loading ? "Processing..." : "Pay with Razorpay"}
       </button>
     </form>
-  );
-}
-
-export default function PaymentPage() {
-  return (
-    <Elements stripe={stripePromise}>
-      <PaymentForm />
-    </Elements>
   );
 }

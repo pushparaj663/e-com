@@ -11,15 +11,19 @@ export default function Login() {
   const navigate = useNavigate();
 
   async function handle(e) {
-    e.preventDefault();
-    try {
-      const res = await api.post('/auth/login', { email, password });
-      login(res.data.user, res.data.token);
-      navigate('/');
-    } catch (err) {
-      alert(err.response?.data?.message || 'Login failed');
-    }
+  e.preventDefault();
+  try {
+    const res = await api.post('/auth/login', { email, password });
+
+    // 🔥 Save token for authenticated cart requests
+    localStorage.setItem("token", res.data.token);
+
+    login(res.data.user, res.data.token);
+    navigate('/');
+  } catch (err) {
+    alert(err.response?.data?.message || 'Login failed');
   }
+}
 
   return (
     <div className="login-container">

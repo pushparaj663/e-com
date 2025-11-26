@@ -10,10 +10,13 @@ export default function CartPage() {
   const [coupon, setCoupon] = useState('');
   const [discount, setDiscount] = useState(0);
   const [appliedCoupon, setAppliedCoupon] = useState('');
-  const [selectedProduct, setSelectedProduct] = useState(null); // For modal
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const increment = (item) => updateQuantity(item.cartId, item.quantity + 1);
-  const decrement = (item) => item.quantity > 1 && updateQuantity(item.cartId, item.quantity - 1);
+  const decrement = (item) => {
+    if (item.quantity > 1) updateQuantity(item.cartId, item.quantity - 1);
+  };
+
   const handleRemove = (item) => removeFromCart(item.cartId);
 
   const totalPrice = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
@@ -37,6 +40,7 @@ export default function CartPage() {
   return (
     <div className="cart-container">
       <h2>Your Cart</h2>
+
       {cart.length === 0 ? (
         <p style={{ color: '#555', textAlign: 'center' }}>Cart is empty</p>
       ) : (
@@ -49,16 +53,20 @@ export default function CartPage() {
                 onClick={() => setSelectedProduct(item)}
                 style={{ cursor: 'pointer' }}
               />
+
               <div className="cart-item-info">
                 <h3>{item.title}</h3>
                 <p className="price">₹{item.price}</p>
+
                 <div className="quantity-controls">
                   <button className="quantity-btn" onClick={() => decrement(item)}>-</button>
                   <span>{item.quantity}</span>
                   <button className="quantity-btn" onClick={() => increment(item)}>+</button>
                 </div>
+
                 <p className="subtotal">Subtotal: ₹{item.price * item.quantity}</p>
               </div>
+
               <button className="remove-btn" onClick={() => handleRemove(item)}>Remove</button>
             </div>
           ))}
@@ -77,11 +85,15 @@ export default function CartPage() {
 
           {/* Total Section */}
           <div className="cart-total">
-            <div>
-              {discount > 0 && <p style={{ color: '#28a745', marginBottom: '0.5rem' }}>Discount: ₹{discount.toFixed(2)}</p>}
-              <span>Total: ₹{finalPrice.toFixed(2)}</span>
-            </div>
-            <button className="checkout-btn" onClick={() => navigate('/checkout')}>Proceed to Checkout</button>
+            {discount > 0 && (
+              <p style={{ color: '#28a745', marginBottom: '0.5rem' }}>
+                Discount: ₹{discount.toFixed(2)}
+              </p>
+            )}
+            <span>Total: ₹{finalPrice.toFixed(2)}</span>
+            <button className="checkout-btn" onClick={() => navigate('/checkout')}>
+              Proceed to Checkout
+            </button>
           </div>
         </>
       )}
@@ -94,7 +106,9 @@ export default function CartPage() {
             <img src={selectedProduct.image_url} alt={selectedProduct.title} />
             <h3>{selectedProduct.title}</h3>
             <p><strong>Price:</strong> ₹{selectedProduct.price}</p>
-            {selectedProduct.description && <p><strong>Description:</strong> {selectedProduct.description}</p>}
+            {selectedProduct.description && (
+              <p><strong>Description:</strong> {selectedProduct.description}</p>
+            )}
             <p><strong>Quantity:</strong> {selectedProduct.quantity}</p>
           </div>
         </div>

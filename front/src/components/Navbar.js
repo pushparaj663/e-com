@@ -1,11 +1,11 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CartContext } from '../contexts/CartContext';
+import { useCart } from '../contexts/CartContext';  // ✅ changed
 import { AuthContext } from '../contexts/AuthContext';
 import './Navbar.css';
 
 export default function Navbar() {
-  const { cart } = useContext(CartContext);
+  const { cart } = useCart();  // ✅ changed
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -35,7 +35,7 @@ export default function Navbar() {
   return (
     <>
       <nav className="navbar">
-        <Link to="/" className="logo">MyShop</Link>
+        <Link to="/" className="logo">Rshopy</Link>
 
         {/* Hamburger for mobile */}
         <div className={`hamburger ${menuOpen ? 'open' : ''}`} onClick={toggleMenu}>
